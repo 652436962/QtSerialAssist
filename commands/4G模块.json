@@ -1,0 +1,20 @@
+{
+    "group": "4G 模块",
+    "commands": [
+        {"name": "AT 测试", "data": "AT\r\n"},
+        {"name": "查询模块信息", "data": "ATI\r\n"},
+        {"name": "查询 IMEI", "data": "AT+CGSN\r\n"},
+        {"name": "查询 IMSI", "data": "AT+CIMI\r\n"},
+        {"name": "查询 ICCID", "data": "AT+CCID\r\n"},
+        {"name": "查询信号质量", "data": "AT+CSQ\r\n"},
+        {"name": "查询运营商", "data": "AT+COPS?\r\n"},
+        {"name": "查询网络注册", "data": "AT+CREG?\r\n"},
+        {"name": "查询 SIM 状态", "data": "AT+CPIN?\r\n"},
+        {"name": "查询 PDP 上下文", "data": "AT+CGDCONT?\r\n"},
+        {"name": "查询是否附着网络", "data": "AT+CGATT?\r\n"},
+        {"name": "查询 IP 地址", "data": "AT+CGPADDR\r\n"},
+        {"name": "设置 APN", "data": "AT+CGDCONT=1,\"IP\",\"CMNET\"\r\n"},
+        {"name": "激活 PDP", "data": "AT+CGACT=1,1\r\n"},
+        {"name": "模块重启", "data": "AT+CFUN=1,1\r\n"}
+    ]
+}

@@ -1,0 +1,1103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>750</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>QtSerialAssist - 串口调试助手</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="mainSplitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QWidget" name="leftPanel" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <layout class="QVBoxLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QTabWidget" name="tabWidget">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="serialTab">
+            <attribute name="title">
+             <string>串口设置</string>
+            </attribute>
+            <layout class="QVBoxLayout">
+             <property name="margin">
+              <number>8</number>
+             </property>
+             <item>
+              <widget class="QWidget" name="widget_serial" native="true">
+               <layout class="QGridLayout">
+                <item row="0" column="0" colspan="2">
+                 <widget class="QLabel" name="label_port">
+                  <property name="text">
+                   <string>串口</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="QComboBox" name="serialPortCombo">
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_baud">
+                  <property name="text">
+                   <string>波特率</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QComboBox" name="baudRateCombo">
+                  <item>
+                   <property name="text">
+                    <string>9600</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>19200</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>38400</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>57600</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>115200</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>460800</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>921600</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_databit">
+                  <property name="text">
+                   <string>数据位</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QComboBox" name="dataBitsCombo">
+                  <item>
+                   <property name="text">
+                    <string>5</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>6</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>7</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>8</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_stopbit">
+                  <property name="text">
+                   <string>停止位</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QComboBox" name="stopBitsCombo">
+                  <item>
+                   <property name="text">
+                    <string>1</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>1.5</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>2</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_parity">
+                  <property name="text">
+                   <string>校验位</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QComboBox" name="parityCombo">
+                  <item>
+                   <property name="text">
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Odd</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Even</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Mark</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Space</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="label_flow">
+                  <property name="text">
+                   <string>流控</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QComboBox" name="flowControlCombo">
+                  <item>
+                   <property name="text">
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Hardware</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Software</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="connectBtn">
+               <property name="text">
+                <string>打开连接</string>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>36</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="networkTab">
+            <attribute name="title">
+             <string>网络设置</string>
+            </attribute>
+            <layout class="QVBoxLayout">
+             <property name="margin">
+              <number>8</number>
+             </property>
+             <item>
+              <widget class="QWidget" name="widget_net" native="true">
+               <layout class="QGridLayout">
+                <item row="0" column="0" colspan="2">
+                 <widget class="QLabel" name="label_protocol">
+                  <property name="text">
+                   <string>协议</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="QComboBox" name="protocolCombo">
+                  <item>
+                   <property name="text">
+                    <string>TCP 服务器</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>TCP 客户端</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>UDP</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="2">
+                 <widget class="QLabel" name="label_ip">
+                  <property name="text">
+                   <string>IP 地址</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0" colspan="2">
+                 <widget class="QLineEdit" name="ipLineEdit">
+                  <property name="text">
+                   <string>192.168.1.100</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="2">
+                 <widget class="QLabel" name="label_port_net">
+                  <property name="text">
+                   <string>端口</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0" colspan="2">
+                 <widget class="QSpinBox" name="portSpinBox">
+                  <property name="value">
+                   <number>8080</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="connectNetBtn">
+               <property name="text">
+                <string>打开连接</string>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>36</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="toolPanelWidget" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+           <layout class="QVBoxLayout">
+            <property name="margin">
+             <number>8</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="toolPanelLabel">
+              <property name="text">
+               <string>工具栏</string>
+              </property>
+              <property name="styleSheet">
+               <string>font-weight: bold; color: #eaeaea;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QGridLayout">
+              <item row="0" column="0">
+               <widget class="QPushButton" name="autoReplyBtn">
+                <property name="text">
+                 <string>自动应答</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QPushButton" name="quickCmdBtn">
+                <property name="text">
+                 <string>快捷指令</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="gsmDebugBtn">
+                <property name="text">
+                 <string>GSM/调试</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="asciiTableBtn">
+                <property name="text">
+                 <string>ASCII表</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QPushButton" name="modbusBtn">
+                <property name="text">
+                 <string>Modbus</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QPushButton" name="moreToolsBtn">
+                <property name="text">
+                 <string>更多工具</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="leftPanelSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      <widget class="QWidget" name="rightPanel" native="true">
+        <layout class="QVBoxLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QSplitter" name="rightSplitter">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <widget class="QWidget" name="receiveWidget" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>200</height>
+            </size>
+           </property>
+           <layout class="QVBoxLayout">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout">
+              <item>
+               <widget class="QLabel" name="receiveLabel">
+                <property name="text">
+                 <string>接收数据</string>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="receiveTitleSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="clearReceiveBtn">
+                <property name="text">
+                 <string>清空接收</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="receiveTextEdit">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout">
+              <item>
+               <widget class="QLabel" name="receiveBytesLabel">
+                <property name="text">
+                 <string>接收: 0 字节</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="frameCountLabel">
+                <property name="text">
+                 <string>帧数: 0</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="receiveStatsSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QSplitter" name="modbusSplitter">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <widget class="QWidget" name="modbusPanelWidget" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>0</height>
+             </size>
+            </property>
+            <layout class="QVBoxLayout">
+             <property name="margin">
+              <number>6</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout">
+               <item>
+                <widget class="QLabel" name="modbusPanelLabel">
+                 <property name="text">
+                  <string>Modbus</string>
+                 </property>
+                 <property name="styleSheet">
+                  <string>font-weight: bold; color: #eaeaea; font-size: 14px;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="modbusFormatCombo">
+                 <item>
+                  <property name="text">
+                   <string>RTU</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>ASCII</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>TCP</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QGridLayout">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_modbusSlave">
+                 <property name="text">
+                  <string>从站地址</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="modbusSlaveSpinBox">
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>247</number>
+                 </property>
+                 <property name="value">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_modbusFunc">
+                 <property name="text">
+                  <string>功能码</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="modbusFuncCombo">
+                 <item>
+                  <property name="text">
+                   <string>01 读线圈</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>03 读保持寄存器</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>05 写单个线圈</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>06 写单个寄存器</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>10 批量写寄存器</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_modbusAddr">
+                 <property name="text">
+                  <string>寄存器地址</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSpinBox" name="modbusAddrSpinBox">
+                 <property name="minimum">
+                  <number>0</number>
+                 </property>
+                 <property name="maximum">
+                  <number>65535</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_modbusCount">
+                 <property name="text">
+                  <string>读写数量</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSpinBox" name="modbusCountSpinBox">
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>125</number>
+                 </property>
+                 <property name="value">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout">
+               <item>
+                <widget class="QPushButton" name="modbusSendBtn">
+                 <property name="text">
+                  <string>发送</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="modbusUpdateBtn">
+                 <property name="text">
+                  <string>更新</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="modbusSendSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QTextEdit" name="modbusResponseEdit">
+               <property name="placeholderText">
+                <string>请求数据...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="quickCmdPanelWidget" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>300</width>
+              <height>0</height>
+             </size>
+            </property>
+            <layout class="QVBoxLayout">
+             <property name="margin">
+              <number>6</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout">
+               <item>
+                <widget class="QLabel" name="quickCmdPanelLabel">
+                 <property name="text">
+                  <string>快捷指令</string>
+                 </property>
+                 <property name="styleSheet">
+                  <string>font-weight: bold; color: #eaeaea; font-size: 14px;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="quickCmdGroupCombo">
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="quickCmdAddGroupBtn">
+                 <property name="text">
+                  <string>+</string>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>28</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="quickCmdDelGroupBtn">
+                 <property name="text">
+                  <string>-</string>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>28</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_quickDelay">
+                 <property name="text">
+                  <string>延时</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="quickCmdDelaySpinBox">
+                 <property name="suffix">
+                  <string> ms</string>
+                 </property>
+                 <property name="minimum">
+                  <number>0</number>
+                 </property>
+                 <property name="maximum">
+                  <number>60000</number>
+                 </property>
+                 <property name="value">
+                  <number>500</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QTableWidget" name="quickCmdTable">
+               <property name="columnCount">
+                <number>4</number>
+               </property>
+               <attribute name="horizontalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+               <column>
+                <property name="text">
+                 <string/>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>名称</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>数据</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string/>
+                </property>
+               </column>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout">
+               <item>
+                <widget class="QPushButton" name="quickCmdAddBtn">
+                 <property name="text">
+                  <string>添加</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="quickCmdDelBtn">
+                 <property name="text">
+                  <string>删除</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="quickCmdSelectAllBtn">
+                 <property name="text">
+                  <string>全选</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="quickCmdUnselectBtn">
+                 <property name="text">
+                  <string>取消全选</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="quickCmdToolSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout">
+               <item>
+                <widget class="QPushButton" name="quickCmdSendBtn">
+                 <property name="text">
+                  <string>发送选中</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="quickCmdSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="sendWidget" native="true">
+           <layout class="QVBoxLayout">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout">
+              <item>
+               <widget class="QLabel" name="sendLabel">
+                <property name="text">
+                 <string>发送数据</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_sendMode">
+                <property name="text">
+                 <string>模式</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="sendModeCombo">
+                <item>
+                 <property name="text">
+                  <string>HEX</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ASCII</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_newline">
+                <property name="text">
+                 <string>换行</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="newlineCombo">
+                <item>
+                 <property name="text">
+                  <string>\r\n</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>\n</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>\r</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>无</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_encoding">
+                <property name="text">
+                 <string>编码</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="encodingCombo">
+                <item>
+                 <property name="text">
+                  <string>UTF-8</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>GBK</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="autoSendCheckBox">
+                <property name="text">
+                 <string>定时发送</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="intervalSpinBox">
+                <property name="value">
+                 <number>1000</number>
+                </property>
+                <property name="suffix">
+                 <string> ms</string>
+                </property>
+                <property name="minimum">
+                 <number>100</number>
+                </property>
+                <property name="maximum">
+                 <number>60000</number>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="clearSendBtn">
+                <property name="text">
+                 <string>清空发送</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="sendTextEdit">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>80</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout">
+              <item>
+               <widget class="QPushButton" name="sendBtn">
+                <property name="text">
+                 <string>发送</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="sendNewLineBtn">
+                <property name="text">
+                 <string>发送新行</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="sendBytesLabel">
+                <property name="text">
+                 <string>发送: 0 字节</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </item>
+</layout>
+</widget>
+<widget class="QStatusBar" name="statusbar">
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
