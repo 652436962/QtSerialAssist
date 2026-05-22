@@ -1,0 +1,74 @@
+name: 跨平台构建
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: ${{ matrix.os }} - Qt ${{ matrix.qt-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-13]
+        qt-version: [6.5.3]
+        include:
+          - os: ubuntu-22.04
+            qt-modules: qtbase qtnetwork qtserialport
+          - os: windows-2022
+            qt-modules: qtbase qtnetwork qtserialport
+          - os: macos-13
+            qt-modules: qtbase qtnetwork qtserialport
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Qt (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev libqt6serialport6-dev libgl1-mesa-dev
+
+      - name: 安装 Qt (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install -y qt6-base-dev --version=${{ matrix.qt-version }}
+        continue-on-error: true
+
+      - name: 安装 Qt (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install qt@6
+
+      - name: 配置 CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: 编译
+        run: |
+          cmake --build build --config Release --parallel
+
+      - name: 上传构建产物 (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: QtSerialAssist-Linux
+          path: build/QtSerialAssist
+
+      - name: 上传构建产物 (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: QtSerialAssist-Windows
+          path: build/Release/QtSerialAssist.exe
+
+      - name: 上传构建产物 (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: QtSerialAssist-macOS
+          path: build/QtSerialAssist.app
