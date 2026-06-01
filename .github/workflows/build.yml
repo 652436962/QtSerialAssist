@@ -134,23 +134,29 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           windeployqt --release --no-translations build/Release/QtSerialAssist.exe
-          mkdir dist
-          Copy-Item -Recurse build/Release/* dist/
-          Remove-Item -Force dist/QtSerialAssist_zh_CN.qm -ErrorAction SilentlyContinue
+          Copy-Item -Recurse build/commands build/Release/ 2>$null
+          Copy-Item build/QtSerialAssist_zh_CN.qm build/Release/ 2>$null
+          Compress-Archive -Path build/Release/* -DestinationPath QtSerialAssist-Windows-x86_64.zip
 
-      - name: 上传构建产物 (Windows)
+      - name: 上传 Windows 包
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: QtSerialAssist-Windows
-          path: dist/
+          path: QtSerialAssist-Windows-x86_64.zip
 
-      - name: 上传构建产物 (macOS)
+      - name: 打包 macOS
+        if: runner.os == 'macOS'
+        run: |
+          cd build
+          zip -r ../QtSerialAssist-macOS-x86_64.zip QtSerialAssist.app
+
+      - name: 上传 macOS 包
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: QtSerialAssist-macOS
-          path: build/QtSerialAssist.app
+          path: QtSerialAssist-macOS-x86_64.zip
 
   release:
     name: 创建 Release
@@ -165,10 +171,10 @@ jobs:
         with:
           path: artifacts
 
-      - name: 整理产物 (扁平化，排除 json)
+      - name: 整理产物
         run: |
           mkdir -p release
-          find artifacts -type f -not -name '*.json' -exec mv {} release/ \;
+          find artifacts -type f \( -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' -o -name '*.zip' \) -exec cp {} release/ \;
           ls -lh release/
 
       - name: 创建 GitHub Release
