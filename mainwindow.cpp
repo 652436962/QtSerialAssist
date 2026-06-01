@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "settingsdialog.h"
 #include <QHeaderView>
 #include <QCheckBox>
 #include <QFile>
@@ -27,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->rightSplitter->setStretchFactor(1, 1);
     ui->rightSplitter->setSizes({450, 250});
     ui->rightSplitter->setHandleWidth(2);
+    ui->rightSplitter->setCollapsible(1, true);  // 允许底部面板折叠（终端模式用）
 
     // Modbus 面板默认隐藏
     ui->modbusPanelWidget->hide();
@@ -40,34 +42,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->modbusSplitter->setSizes({200, 300, 600});
     ui->modbusSplitter->setHandleWidth(2);
 
-    setStyleSheet(R"(
-        QMainWindow { background-color: #1a1a2e; }
-        QWidget[native="true"] { background-color: #16213e; }
-        QTabWidget::pane { border: 1px solid #2a2a4a; background-color: #16213e; }
-        QTabBar::tab { background-color: #16213e; color: #a0a0a0; padding: 6px 16px; border: 1px solid #2a2a4a; border-bottom: none; border-top-left-radius: 4px; border-top-right-radius: 4px; }
-        QTabBar::tab:selected { background-color: #0f3460; color: #eaeaea; }
-        QTabBar::tab:hover { background-color: #0f3460; }
-        QLabel { color: #a0a0a0; background: transparent; }
-        QComboBox, QSpinBox, QLineEdit { background-color: #1a1a2e; color: #eaeaea; border: 1px solid #2a2a4a; padding: 6px; border-radius: 4px; }
-        QComboBox:hover, QSpinBox:hover, QLineEdit:hover { border: 1px solid #e94560; }
-        QComboBox::drop-down { border: none; }
-        QPushButton { background-color: #0f3460; color: #eaeaea; border: 1px solid #2a2a4a; padding: 6px 16px; border-radius: 4px; }
-        QPushButton:hover { background-color: #16213e; border: 1px solid #e94560; }
-        QPushButton:pressed { background-color: #e94560; border-color: #e94560; }
-        QTextEdit { background-color: #1a1a2e; color: #6eb5ff; border: 1px solid #2a2a4a; border-radius: 6px; padding: 8px; font-family: Consolas, 'Monaco', monospace; font-size: 13px; }
-        QCheckBox { color: #eaeaea; background: transparent; spacing: 8px; }
-        QCheckBox::indicator { width: 16px; height: 16px; border-radius: 3px; border: 1px solid #2a2a4a; background-color: #1a1a2e; }
-        QCheckBox::indicator:checked { background-color: #e94560; border-color: #e94560; }
-        QStatusBar { background-color: #16213e; color: #a0a0a0; }
-        QSplitter::handle { background-color: #2a2a4a; width: 2px; }
-        QSplitter::handle:hover { background-color: #e94560; }
-    )");
-
-
+    applyTheme(0);  // 默认深色主题
 
     m_tcpServer = new QTcpServer(this);
     m_autoSendTimer = new QTimer(this);
     m_autoRefreshTimer = new QTimer(this);
+    m_translator = new QTranslator(this);
     m_quickCmdTimer = new QTimer(this);
     m_quickCmdTimer->setSingleShot(false);
 
@@ -81,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 
     initConnections();
+    loadSettings();
     statusBar()->showMessage("就绪");
 }
 
@@ -105,44 +86,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::initConnections()
 {
-    connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::on_connectBtn_clicked);
+    // connectSlotsByName in setupUi() auto-connects all on_<widget>_<signal> slots.
+    // Only manually connect signals whose slot names do NOT follow that convention.
+
     connect(ui->connectNetBtn, &QPushButton::clicked, this, &MainWindow::on_connectBtn_clicked);
-    connect(ui->sendBtn, &QPushButton::clicked, this, [this]() { on_sendBtn_clicked(false); });
     connect(ui->sendNewLineBtn, &QPushButton::clicked, this, [this]() { on_sendBtn_clicked(true); });
-    connect(ui->clearReceiveBtn, &QPushButton::clicked, this, &MainWindow::on_clearReceiveBtn_clicked);
-    connect(ui->clearSendBtn, &QPushButton::clicked, this, &MainWindow::on_clearSendBtn_clicked);
-    connect(ui->autoSendCheckBox, &QCheckBox::toggled, this, &MainWindow::on_autoSendCheckBox_toggled);
-    connect(ui->intervalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::on_intervalSpinBox_valueChanged);
-    connect(ui->tabWidget, QOverload<int>::of(&QTabWidget::currentChanged), this, &MainWindow::on_tabWidget_currentChanged);
     connect(ui->modbusBtn, &QPushButton::clicked, this, [this]() {
         ui->modbusPanelWidget->setVisible(!ui->modbusPanelWidget->isVisible());
     });
-    connect(ui->modbusUpdateBtn, &QPushButton::clicked, this, [this]() {
-        on_modbusUpdateBtn_clicked();
-    });
     connect(ui->quickCmdBtn, &QPushButton::clicked, this, [this]() {
         ui->quickCmdPanelWidget->setVisible(!ui->quickCmdPanelWidget->isVisible());
-    });
-    connect(ui->quickCmdSendBtn, &QPushButton::clicked, this, [this]() {
-        on_quickCmdSendBtn_clicked();
-    });
-    connect(ui->quickCmdAddBtn, &QPushButton::clicked, this, [this]() {
-        on_quickCmdAddBtn_clicked();
-    });
-    connect(ui->quickCmdDelBtn, &QPushButton::clicked, this, [this]() {
-        on_quickCmdDelBtn_clicked();
-    });
-    connect(ui->quickCmdSelectAllBtn, &QPushButton::clicked, this, [this]() {
-        on_quickCmdSelectAllBtn_clicked();
-    });
-    connect(ui->quickCmdUnselectBtn, &QPushButton::clicked, this, [this]() {
-        on_quickCmdUnselectBtn_clicked();
-    });
-    connect(ui->quickCmdAddGroupBtn, &QPushButton::clicked, this, [this]() {
-        on_quickCmdAddGroupBtn_clicked();
-    });
-    connect(ui->quickCmdDelGroupBtn, &QPushButton::clicked, this, [this]() {
-        on_quickCmdDelGroupBtn_clicked();
     });
     connect(ui->quickCmdGroupCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
         if (index >= 0) {
@@ -151,7 +104,7 @@ void MainWindow::initConnections()
     });
     connect(ui->quickCmdTable, &QTableWidget::cellClicked, this, [this](int row, int column) {
         if (column == 3) {
-            on_quickCmdLoadBtn_clicked(row);
+            loadQuickCmdToSendArea(row);
         }
     });
     connect(m_autoSendTimer, &QTimer::timeout, this, &MainWindow::on_autoSendTimer);
@@ -400,28 +353,27 @@ void MainWindow::on_sendBtn_clicked(bool appendNewline)
 
     if (sent) {
         m_sendBytes += bytes.size();
-        ui->sendBytesLabel->setText(QString("发送: %1 字节").arg(m_sendBytes));
+        ui->sendBytesLabel->setText(QCoreApplication::translate("MainWindow", "发送: %1 字节").arg(m_sendBytes));
 
-        QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
-        QString hexData = bytes.toHex(' ').toUpper();
-        ui->receiveTextEdit->append(QString("[%1] <span style='color:#4ecca3'>%2</span>").arg(time).arg(hexData));
+        processIncomingData(bytes, "#4ecca3");
     }
 }
 
 void MainWindow::on_clearReceiveBtn_clicked()
 {
     ui->receiveTextEdit->clear();
+    m_lineBuffer.clear();
     m_receiveBytes = 0;
     m_frameCount = 0;
-    ui->receiveBytesLabel->setText("接收: 0 字节");
-    ui->frameCountLabel->setText("帧数: 0");
+    ui->receiveBytesLabel->setText(QCoreApplication::translate("MainWindow", "接收: 0 字节"));
+    ui->frameCountLabel->setText(QCoreApplication::translate("MainWindow", "帧数: 0"));
 }
 
 void MainWindow::on_clearSendBtn_clicked()
 {
     ui->sendTextEdit->clear();
     m_sendBytes = 0;
-    ui->sendBytesLabel->setText("发送: 0 字节");
+    ui->sendBytesLabel->setText(QCoreApplication::translate("MainWindow", "发送: 0 字节"));
 }
 
 void MainWindow::on_autoSendCheckBox_toggled(bool checked)
@@ -455,6 +407,11 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 #endif
 }
 
+void MainWindow::on_receiveModeCombo_currentIndexChanged(int index)
+{
+    m_receiveMode = index;
+}
+
 void MainWindow::on_autoSendTimer()
 {
     on_sendBtn_clicked();
@@ -469,12 +426,10 @@ void MainWindow::on_serialReadyRead()
     m_receiveBytes += data.size();
     m_frameCount++;
 
-    ui->receiveBytesLabel->setText(QString("接收: %1 字节").arg(m_receiveBytes));
-    ui->frameCountLabel->setText(QString("帧数: %1").arg(m_frameCount));
+    ui->receiveBytesLabel->setText(QCoreApplication::translate("MainWindow", "接收: %1 字节").arg(m_receiveBytes));
+    ui->frameCountLabel->setText(QCoreApplication::translate("MainWindow", "帧数: %1").arg(m_frameCount));
 
-    QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
-    QString hexData = data.toHex(' ').toUpper();
-    ui->receiveTextEdit->append(QString("[%1] <span style='color:#6eb5ff'>%2</span>").arg(time).arg(hexData));
+    processIncomingData(data, "#6eb5ff");
 }
 #endif
 
@@ -486,12 +441,10 @@ void MainWindow::on_tcpClientReadyRead()
     m_receiveBytes += data.size();
     m_frameCount++;
 
-    ui->receiveBytesLabel->setText(QString("接收: %1 字节").arg(m_receiveBytes));
-    ui->frameCountLabel->setText(QString("帧数: %1").arg(m_frameCount));
+    ui->receiveBytesLabel->setText(QCoreApplication::translate("MainWindow", "接收: %1 字节").arg(m_receiveBytes));
+    ui->frameCountLabel->setText(QCoreApplication::translate("MainWindow", "帧数: %1").arg(m_frameCount));
 
-    QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
-    QString hexData = data.toHex(' ').toUpper();
-    ui->receiveTextEdit->append(QString("[%1] <span style='color:#6eb5ff'>%2</span>").arg(time).arg(hexData));
+    processIncomingData(data, "#6eb5ff");
 }
 
 void MainWindow::on_tcpServerNewConnection()
@@ -502,12 +455,10 @@ void MainWindow::on_tcpServerNewConnection()
         m_receiveBytes += data.size();
         m_frameCount++;
 
-        ui->receiveBytesLabel->setText(QString("接收: %1 字节").arg(m_receiveBytes));
-        ui->frameCountLabel->setText(QString("帧数: %1").arg(m_frameCount));
+        ui->receiveBytesLabel->setText(QCoreApplication::translate("MainWindow", "接收: %1 字节").arg(m_receiveBytes));
+        ui->frameCountLabel->setText(QCoreApplication::translate("MainWindow", "帧数: %1").arg(m_frameCount));
 
-        QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
-        QString hexData = data.toHex(' ').toUpper();
-        ui->receiveTextEdit->append(QString("[%1] <span style='color:#6eb5ff'>%2</span>").arg(time).arg(hexData));
+        processIncomingData(data, "#6eb5ff");
     });
 }
 
@@ -526,12 +477,10 @@ void MainWindow::on_udpReadyRead()
         m_receiveBytes += data.size();
         m_frameCount++;
 
-        ui->receiveBytesLabel->setText(QString("接收: %1 字节").arg(m_receiveBytes));
-        ui->frameCountLabel->setText(QString("帧数: %1").arg(m_frameCount));
+        ui->receiveBytesLabel->setText(QCoreApplication::translate("MainWindow", "接收: %1 字节").arg(m_receiveBytes));
+        ui->frameCountLabel->setText(QCoreApplication::translate("MainWindow", "帧数: %1").arg(m_frameCount));
 
-        QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
-        QString hexData = data.toHex(' ').toUpper();
-        ui->receiveTextEdit->append(QString("[%1] <span style='color:#6eb5ff'>%2</span>").arg(time).arg(hexData));
+        processIncomingData(data, "#6eb5ff");
     }
 }
 
@@ -550,6 +499,71 @@ QByteArray MainWindow::parseHexInput(const QString &input)
     }
 
     return result;
+}
+
+QString MainWindow::formatReceiveData(const QByteArray &data)
+{
+    if (m_receiveMode == 0) {
+        return data.toHex(' ').toUpper();
+    }
+
+    QString text = QString::fromUtf8(data);
+    qsizetype replacementCount = 0;
+    for (int i = 0; i < text.size(); i++) {
+        if (text[i].unicode() == 0xFFFD) replacementCount++;
+    }
+
+    if (replacementCount > data.size() / 4) {
+        text = QString::fromLatin1(data);
+    }
+
+    QString result;
+    result.reserve(text.size());
+    for (int i = 0; i < text.size(); i++) {
+        QChar ch = text[i];
+        ushort uc = ch.unicode();
+        if (ch.isPrint() || ch == '\n' || ch == '\r' || ch == '\t') {
+            result.append(ch);
+        } else if (uc < 0x20) {
+            result.append(QString("<%1>").arg(uc, 2, 16, QChar('0')).toUpper());
+        } else {
+            result.append('.');
+        }
+    }
+    return result.toHtmlEscaped();
+}
+
+void MainWindow::processIncomingData(const QByteArray &data, const QString &color)
+{
+    m_lineBuffer.append(data);
+    m_lineBuffer.replace("\r\n", "\n");
+    m_lineBuffer.replace('\r', '\n');
+    QByteArray line;
+    int pos;
+    while ((pos = m_lineBuffer.indexOf('\n')) >= 0) {
+        line = m_lineBuffer.left(pos);
+        m_lineBuffer.remove(0, pos + 1);
+        if (!line.isEmpty()) {
+            QByteArray cleanLine = line;
+            int escIdx;
+            while ((escIdx = cleanLine.indexOf('\x1B')) >= 0) {
+                int end = escIdx + 1;
+                if (end < cleanLine.size() && cleanLine[end] == '[') {
+                    end++;
+                    while (end < cleanLine.size() &&
+                           ((cleanLine[end] >= '0' && cleanLine[end] <= '9') ||
+                            cleanLine[end] == ';')) {
+                        end++;
+                    }
+                    if (end < cleanLine.size()) end++;
+                }
+                cleanLine.remove(escIdx, end - escIdx);
+            }
+            QString displayData = formatReceiveData(cleanLine);
+            ui->receiveTextEdit->append(
+                QString("<span style='color:%1'>%2</span>").arg(color, displayData));
+        }
+    }
 }
 
 quint16 MainWindow::modbusCRC16(const QByteArray &data)
@@ -715,10 +729,12 @@ void MainWindow::loadQuickCmdGroup(const QString &groupName)
 
         // 名称 (column 1)
         QTableWidgetItem *nameItem = new QTableWidgetItem(item.name);
+        nameItem->setToolTip(item.name);
         ui->quickCmdTable->setItem(i, 1, nameItem);
 
         // 数据 (column 2)
         QTableWidgetItem *dataItem = new QTableWidgetItem(item.data);
+        dataItem->setToolTip(item.data);
         ui->quickCmdTable->setItem(i, 2, dataItem);
 
         // 加载按钮 (column 3)
@@ -734,7 +750,7 @@ void MainWindow::loadQuickCmdGroup(const QString &groupName)
     }
 }
 
-void MainWindow::on_quickCmdLoadBtn_clicked(int row)
+void MainWindow::loadQuickCmdToSendArea(int row)
 {
     QTableWidgetItem *dataItem = ui->quickCmdTable->item(row, 2);
     if (!dataItem) return;
@@ -1021,4 +1037,304 @@ void MainWindow::on_quickCmdDelGroupBtn_clicked()
     loadQuickCmdGroup(ui->quickCmdGroupCombo->currentText());
 
     statusBar()->showMessage("分组已删除: " + groupName);
+}
+
+void MainWindow::applyTheme(int themeIndex)
+{
+    m_currentTheme = themeIndex;
+
+    if (themeIndex == 0) {
+        // 深色主题
+        setStyleSheet(R"(
+            QMainWindow { background-color: #1a1a2e; }
+            QWidget[native="true"] { background-color: #16213e; }
+            QTabWidget::pane { border: 1px solid #2a2a4a; background-color: #16213e; }
+            QTabBar::tab { background-color: #16213e; color: #a0a0a0; padding: 6px 16px; border: 1px solid #2a2a4a; border-bottom: none; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+            QTabBar::tab:selected { background-color: #0f3460; color: #eaeaea; }
+            QTabBar::tab:hover { background-color: #0f3460; }
+            QLabel { color: #a0a0a0; background: transparent; }
+            QComboBox, QSpinBox, QLineEdit { background-color: #1a1a2e; color: #eaeaea; border: 1px solid #2a2a4a; padding: 6px; border-radius: 4px; }
+            QComboBox:hover, QSpinBox:hover, QLineEdit:hover { border: 1px solid #e94560; }
+            QComboBox::drop-down { border: none; }
+            QPushButton { background-color: #0f3460; color: #eaeaea; border: 1px solid #2a2a4a; padding: 6px 16px; border-radius: 4px; }
+            QPushButton:hover { background-color: #16213e; border: 1px solid #e94560; }
+            QPushButton:pressed { background-color: #e94560; border-color: #e94560; }
+            QTextEdit { background-color: #1a1a2e; color: #6eb5ff; border: 1px solid #2a2a4a; border-radius: 6px; padding: 8px; font-family: Consolas, 'Monaco', monospace; font-size: 13px; }
+            QCheckBox { color: #eaeaea; background: transparent; spacing: 8px; }
+            QCheckBox::indicator { width: 16px; height: 16px; border-radius: 3px; border: 1px solid #2a2a4a; background-color: #1a1a2e; }
+            QCheckBox::indicator:checked { background-color: #e94560; border-color: #e94560; }
+            QStatusBar { background-color: #16213e; color: #a0a0a0; }
+            QSplitter::handle { background-color: #2a2a4a; width: 2px; }
+            QSplitter::handle:hover { background-color: #e94560; }
+            QTableWidget { background-color: #1a1a2e; color: #eaeaea; gridline-color: #2a2a4a; border: 1px solid #2a2a4a; }
+            QTableWidget::item { padding: 4px; }
+            QHeaderView::section { background-color: #16213e; color: #a0a0a0; border: 1px solid #2a2a4a; padding: 4px; }
+            QGroupBox { color: #eaeaea; border: 1px solid #2a2a4a; border-radius: 6px; margin-top: 12px; padding-top: 20px; background-color: #16213e; }
+            QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; color: #e94560; }
+        )");
+    } else {
+        // 浅色主题
+        setStyleSheet(R"(
+            QMainWindow { background-color: #f0f0f0; }
+            QWidget[native="true"] { background-color: #ffffff; }
+            QTabWidget::pane { border: 1px solid #d0d0d0; background-color: #ffffff; }
+            QTabBar::tab { background-color: #e8e8e8; color: #555555; padding: 6px 16px; border: 1px solid #d0d0d0; border-bottom: none; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+            QTabBar::tab:selected { background-color: #ffffff; color: #333333; }
+            QTabBar::tab:hover { background-color: #f5f5f5; }
+            QLabel { color: #555555; background: transparent; }
+            QComboBox, QSpinBox, QLineEdit { background-color: #ffffff; color: #333333; border: 1px solid #c0c0c0; padding: 6px; border-radius: 4px; }
+            QComboBox:hover, QSpinBox:hover, QLineEdit:hover { border: 1px solid #0078d4; }
+            QComboBox::drop-down { border: none; }
+            QPushButton { background-color: #0078d4; color: #ffffff; border: 1px solid #0060b0; padding: 6px 16px; border-radius: 4px; }
+            QPushButton:hover { background-color: #1084e0; border: 1px solid #0078d4; }
+            QPushButton:pressed { background-color: #0060b0; border-color: #0050a0; }
+            QTextEdit { background-color: #ffffff; color: #333333; border: 1px solid #d0d0d0; border-radius: 6px; padding: 8px; font-family: Consolas, 'Monaco', monospace; font-size: 13px; }
+            QCheckBox { color: #333333; background: transparent; spacing: 8px; }
+            QCheckBox::indicator { width: 16px; height: 16px; border-radius: 3px; border: 1px solid #c0c0c0; background-color: #ffffff; }
+            QCheckBox::indicator:checked { background-color: #0078d4; border-color: #0078d4; }
+            QStatusBar { background-color: #e8e8e8; color: #555555; }
+            QSplitter::handle { background-color: #d0d0d0; width: 2px; }
+            QSplitter::handle:hover { background-color: #0078d4; }
+            QTableWidget { background-color: #ffffff; color: #333333; gridline-color: #d0d0d0; border: 1px solid #d0d0d0; }
+            QTableWidget::item { padding: 4px; }
+            QHeaderView::section { background-color: #e8e8e8; color: #555555; border: 1px solid #d0d0d0; padding: 4px; }
+            QGroupBox { color: #333333; border: 1px solid #d0d0d0; border-radius: 6px; margin-top: 12px; padding-top: 20px; background-color: #ffffff; }
+            QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; color: #0078d4; }
+        )");
+    }
+}
+
+void MainWindow::loadSettings()
+{
+    QSettings settings("QtSerialAssist", "QtSerialAssist");
+
+    // 加载主题
+    int theme = settings.value("theme", 0).toInt();
+    if (theme != m_currentTheme) {
+        applyTheme(theme);
+    }
+
+    // 加载语言
+    int lang = settings.value("language", 0).toInt();
+    m_currentLanguage = lang;
+    if (lang == 1) {
+        if (m_translator->load("QtSerialAssist_zh_CN.qm",
+                QCoreApplication::applicationDirPath())) {
+            qApp->installTranslator(m_translator);
+        }
+    }
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings settings("QtSerialAssist", "QtSerialAssist");
+    settings.setValue("theme", m_currentTheme);
+
+    settings.setValue("language", m_currentLanguage);
+}
+
+void MainWindow::on_settingsBtn_clicked()
+{
+    SettingsDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        int theme = dialog.currentTheme();
+        int lang = dialog.currentLanguage();
+
+        // 应用主题
+        if (theme != m_currentTheme) {
+            applyTheme(theme);
+        }
+
+        // 应用语言
+        if (lang != m_currentLanguage) {
+            m_currentLanguage = lang;
+            if (lang == 1) {
+                // English
+                if (!m_translator->isEmpty()) {
+                    qApp->removeTranslator(m_translator);
+                }
+                if (m_translator->load("QtSerialAssist_zh_CN.qm",
+                        QCoreApplication::applicationDirPath())) {
+                    qApp->installTranslator(m_translator);
+                }
+            } else {
+                // 中文
+                if (!m_translator->isEmpty()) {
+                    qApp->removeTranslator(m_translator);
+                }
+            }
+
+            // 刷新 .ui 中的字符串（retranslateUi 会重置计数器等动态值，需保存恢复）
+            QString savedIp = ui->ipLineEdit->text();
+            QString savedRxLabel = ui->receiveBytesLabel->text();
+            QString savedTxLabel = ui->sendBytesLabel->text();
+            QString savedFrameLabel = ui->frameCountLabel->text();
+
+            ui->retranslateUi(this);
+
+            ui->ipLineEdit->setText(savedIp);
+            ui->receiveBytesLabel->setText(savedRxLabel);
+            ui->sendBytesLabel->setText(savedTxLabel);
+            ui->frameCountLabel->setText(savedFrameLabel);
+
+            // retranslateUi 会覆盖部分样式，重新应用主题
+            applyTheme(m_currentTheme);
+        }
+
+        // 保存设置
+        saveSettings();
+    }
+}
+
+void MainWindow::on_terminalModeBtn_clicked()
+{
+    setTerminalMode(!m_terminalMode);
+}
+
+void MainWindow::setTerminalMode(bool enabled)
+{
+    m_terminalMode = enabled;
+
+    if (enabled) {
+        // 保存分界比例，然后折叠底部面板
+        m_savedSplitterSizes = ui->rightSplitter->sizes();
+        ui->modbusSplitter->hide();
+
+        // 按钮切换为"普通模式"
+        ui->terminalModeBtn->setText(QCoreApplication::translate("MainWindow", "普通模式"));
+
+        // 接收区变为可编辑，作为终端输入输出
+        ui->receiveTextEdit->setReadOnly(false);
+        ui->receiveTextEdit->setFocus();
+        // 光标移到末尾
+        QTextCursor cursor = ui->receiveTextEdit->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        ui->receiveTextEdit->setTextCursor(cursor);
+
+        // 安装事件过滤器，捕获按键发送数据
+        ui->receiveTextEdit->installEventFilter(this);
+
+        // 更改按钮样式提示
+        ui->terminalModeBtn->setStyleSheet(
+            "background-color: #e94560; color: #ffffff; border: 1px solid #e94560;"
+            "padding: 6px 16px; border-radius: 4px;");
+
+        statusBar()->showMessage("终端模式已开启 - 在接收区直接输入发送");
+    } else {
+        // 恢复底部发送面板
+        ui->modbusSplitter->show();
+        if (!m_savedSplitterSizes.isEmpty()) {
+            ui->rightSplitter->setSizes(m_savedSplitterSizes);
+        }
+
+        // 按钮恢复为"终端模式"
+        ui->terminalModeBtn->setText(QCoreApplication::translate("MainWindow", "终端模式"));
+
+        // 接收区恢复只读
+        ui->receiveTextEdit->setReadOnly(true);
+
+        // 移除事件过滤器
+        ui->receiveTextEdit->removeEventFilter(this);
+
+        // 恢复按钮样式
+        ui->terminalModeBtn->setStyleSheet("");
+        applyTheme(m_currentTheme);  // 重新应用主题恢复按钮样式
+
+        statusBar()->showMessage("终端模式已关闭");
+    }
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (m_terminalMode && obj == ui->receiveTextEdit && event->type() == QEvent::KeyPress) {
+        auto *keyEvent = static_cast<QKeyEvent *>(event);
+        int key = keyEvent->key();
+        QString text = keyEvent->text();
+
+        // Enter/Return: 发送换行
+        if (key == Qt::Key_Return || key == Qt::Key_Enter) {
+            QByteArray newline;
+            QString nl = ui->newlineCombo->currentText();
+            if (nl == "\\r\\n") {
+                newline = "\r\n";
+            } else if (nl == "\\n") {
+                newline = "\n";
+            } else if (nl == "\\r") {
+                newline = "\r";
+            } else {
+                newline = "\r\n";
+            }
+
+            // 在显示区追加换行
+            ui->receiveTextEdit->insertPlainText("\n");
+            QTextCursor cursor = ui->receiveTextEdit->textCursor();
+            cursor.movePosition(QTextCursor::End);
+            ui->receiveTextEdit->setTextCursor(cursor);
+
+            // 发送换行数据
+            sendTerminalData(newline);
+            return true;
+        }
+
+        // Backspace: 删除本地最后一个字符（不发送）
+        if (key == Qt::Key_Backspace) {
+            QTextCursor cursor = ui->receiveTextEdit->textCursor();
+            if (!cursor.atStart()) {
+                cursor.deletePreviousChar();
+            }
+            return true;
+        }
+
+        // 普通可打印字符或空格：发送并显示
+        if (!text.isEmpty() && text[0].isPrint()) {
+            QByteArray data = text.toUtf8();
+
+            // 在显示区追加字符（用发送颜色）
+            QTextCursor cursor = ui->receiveTextEdit->textCursor();
+            cursor.movePosition(QTextCursor::End);
+
+            QTextCharFormat fmt;
+            fmt.setForeground(QColor("#4ecca3"));  // 发送颜色（绿色）
+            cursor.insertText(text, fmt);
+
+            ui->receiveTextEdit->setTextCursor(cursor);
+
+            // 发送数据
+            sendTerminalData(data);
+            return true;
+        }
+    }
+
+    return QMainWindow::eventFilter(obj, event);
+}
+
+void MainWindow::sendTerminalData(const QByteArray &data)
+{
+    if (data.isEmpty()) return;
+
+    int tabIndex = ui->tabWidget->currentIndex();
+
+#ifdef HAS_SERIAL_PORT
+    if (tabIndex == 0 && m_serialConnected && m_serialPort) {
+        m_serialPort->write(data);
+        m_serialPort->flush();
+        m_sendBytes += data.size();
+        ui->sendBytesLabel->setText(QCoreApplication::translate("MainWindow", "发送: %1 字节").arg(m_sendBytes));
+        return;
+    }
+#endif
+
+    int protocol = ui->protocolCombo->currentIndex();
+    if (protocol == 1 && m_tcpConnected && m_tcpSocket) {
+        m_tcpSocket->write(data);
+        m_tcpSocket->flush();
+        m_sendBytes += data.size();
+        ui->sendBytesLabel->setText(QCoreApplication::translate("MainWindow", "发送: %1 字节").arg(m_sendBytes));
+    } else if (protocol == 2 && m_udpBound && m_udpSocket) {
+        QString ip = ui->ipLineEdit->text();
+        quint16 port = ui->portSpinBox->value();
+        m_udpSocket->writeDatagram(data, QHostAddress(ip), port);
+        m_sendBytes += data.size();
+        ui->sendBytesLabel->setText(QCoreApplication::translate("MainWindow", "发送: %1 字节").arg(m_sendBytes));
+    }
 }

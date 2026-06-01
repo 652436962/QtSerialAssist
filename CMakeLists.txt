@@ -22,6 +22,8 @@ qt_add_executable(QtSerialAssist
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    settingsdialog.cpp
+    settingsdialog.h
 )
 
 target_link_libraries(QtSerialAssist
@@ -75,3 +77,16 @@ add_custom_command(TARGET QtSerialAssist POST_BUILD
     ${CMAKE_SOURCE_DIR}/commands
     $<TARGET_FILE_DIR:QtSerialAssist>/commands
 )
+
+# 编译翻译文件并复制到构建目录
+set(LRELEASE_EXECUTABLE "/usr/lib/qt5/bin/lrelease")
+if(EXISTS ${LRELEASE_EXECUTABLE})
+    add_custom_command(TARGET QtSerialAssist POST_BUILD
+        COMMAND ${LRELEASE_EXECUTABLE}
+        ${CMAKE_SOURCE_DIR}/QtSerialAssist_zh_CN.ts
+        -qm $<TARGET_FILE_DIR:QtSerialAssist>/QtSerialAssist_zh_CN.qm
+        COMMENT "生成翻译文件 QtSerialAssist_zh_CN.qm"
+    )
+else()
+    message(WARNING "lrelease not found, skipping translation file generation")
+endif()

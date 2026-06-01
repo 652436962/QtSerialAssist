@@ -9,6 +9,9 @@
 #include <QTextCursor>
 #include <QDateTime>
 #include <QMap>
+#include <QSettings>
+#include <QTranslator>
+#include <QKeyEvent>
 
 struct QuickCmdItem {
     QString name;
@@ -53,7 +56,8 @@ private slots:
     void on_tabWidget_currentChanged(int index);
 
     void on_modbusUpdateBtn_clicked();
-    void on_quickCmdLoadBtn_clicked(int row);
+    void on_receiveModeCombo_currentIndexChanged(int index);
+    void loadQuickCmdToSendArea(int row);
     void on_quickCmdSendBtn_clicked();
     void on_quickCmdAddBtn_clicked();
     void on_quickCmdDelBtn_clicked();
@@ -61,6 +65,9 @@ private slots:
     void on_quickCmdUnselectBtn_clicked();
     void on_quickCmdAddGroupBtn_clicked();
     void on_quickCmdDelGroupBtn_clicked();
+
+    void on_settingsBtn_clicked();
+    void on_terminalModeBtn_clicked();
 
 #ifdef HAS_SERIAL_PORT
     void on_serialReadyRead();
@@ -89,8 +96,10 @@ private:
     void initConnections();
 
     void appendReceiveData(const QString &data, bool isSend = false);
+    void processIncomingData(const QByteArray &data, const QString &color);
     void updateStatus(const QString &status);
 
+    QString formatReceiveData(const QByteArray &data);
     QByteArray formatHexData(const QByteArray &data);
     QByteArray parseHexInput(const QString &input);
     quint16 modbusCRC16(const QByteArray &data);
@@ -107,5 +116,23 @@ private:
     quint64 m_sendBytes = 0;
     quint64 m_receiveBytes = 0;
     int m_frameCount = 0;
+    int m_receiveMode = 0; // 0=HEX, 1=ASCII
+    QByteArray m_lineBuffer;
+
+    // 主题和语言
+    int m_currentTheme = 0;   // 0=深色, 1=浅色
+    int m_currentLanguage = 0; // 0=中文, 1=English
+    QTranslator *m_translator = nullptr;
+
+    void applyTheme(int themeIndex);
+    void loadSettings();
+    void saveSettings();
+
+    // 终端模式
+    bool m_terminalMode = false;
+    QList<int> m_savedSplitterSizes;
+    void setTerminalMode(bool enabled);
+    void sendTerminalData(const QByteArray &data);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 };
 #endif
