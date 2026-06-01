@@ -38,12 +38,81 @@ jobs:
       - name: 编译
         run: cmake --build build --parallel
 
-      - name: 上传构建产物 (Linux)
+      - name: 打包 Linux (AppImage / deb / rpm)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y libfuse2 rpm alien
+          VERSION=1.0.0
+          ARCH=x86_64
+
+          # ---- AppDir ----
+          mkdir -p AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
+          cp build/QtSerialAssist AppDir/usr/bin/
+          cp -r build/commands AppDir/usr/bin/
+          cp build/QtSerialAssist_zh_CN.qm AppDir/usr/bin/ 2>/dev/null || true
+
+          cat > AppDir/usr/share/applications/qtserialassist.desktop << 'DF'
+          [Desktop Entry]
+          Type=Application
+          Name=QtSerialAssist
+          Comment=串口/网络调试助手
+          Exec=QtSerialAssist
+          Icon=qtserialassist
+          Categories=Development;
+          Terminal=false
+          DF
+
+          cat > AppDir/AppRun << 'AR'
+          #!/bin/bash
+          HERE="$(dirname "$(readlink -f "$0")")"
+          export PATH="$HERE/usr/bin:$PATH"
+          export LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"
+          export QT_PLUGIN_PATH="$HERE/usr/plugins"
+          export QML2_IMPORT_PATH="$HERE/usr/qml"
+          exec "$HERE/usr/bin/QtSerialAssist" "$@"
+          AR
+          chmod +x AppDir/AppRun
+
+          touch AppDir/usr/share/icons/hicolor/256x256/apps/qtserialassist.png
+
+          # ---- AppImage (linuxdeploy + qt plugin) ----
+          wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget -nv https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy*.AppImage
+          export LDAI_OUTPUT="QtSerialAssist-${VERSION}-${ARCH}.AppImage"
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
+
+          # ---- deb ----
+          mkdir -p deb-pkg/DEBIAN
+          cp -r AppDir/usr deb-pkg/
+          cat > deb-pkg/DEBIAN/control << CTRL
+          Package: qtserialassist
+          Version: ${VERSION}
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Maintainer: QtSerialAssist
+          Description: 跨平台串口/网络调试助手
+          CTRL
+          dpkg-deb --build deb-pkg "qtserialassist_${VERSION}_amd64.deb"
+
+          # ---- rpm (alien convert) ----
+          alien -r --scripts "qtserialassist_${VERSION}_amd64.deb"
+          mv qtserialassist-${VERSION}-*.rpm "qtserialassist-${VERSION}.x86_64.rpm" 2>/dev/null || true
+
+          # ---- copy artifacts ----
+          mkdir -p packages
+          cp QtSerialAssist-*.AppImage packages/
+          cp qtserialassist_*.deb packages/
+          cp qtserialassist-*.rpm packages/
+          ls -lh packages/
+
+      - name: 上传 Linux 包 (AppImage/deb/rpm)
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: QtSerialAssist-Linux
-          path: build/QtSerialAssist
+          path: packages/
 
       - name: 上传构建产物 (Windows)
         if: runner.os == 'Windows'
