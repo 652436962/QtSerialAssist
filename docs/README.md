@@ -46,6 +46,28 @@ cmake --build . --parallel
 open QtSerialAssist.app
 ```
 
+## Linux 串口权限
+
+默认情况下普通用户无权访问串口设备（`/dev/ttyUSB*`、`/dev/ttyS*`），请执行以下操作之一：
+
+**方法一：加入 dialout 组（推荐）**
+
+```bash
+sudo usermod -a -G dialout $USER
+# 注销后重新登录生效
+```
+
+**方法二：udev 规则（永久修改设备权限）**
+
+```bash
+sudo tee /etc/udev/rules.d/99-serial.rules << 'EOF'
+KERNEL=="ttyUSB*", MODE="0666"
+KERNEL=="ttyS*", MODE="0666"
+EOF
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
 ## 快捷指令配置
 
 `commands/` 目录下的 JSON 文件定义快捷指令分组，程序启动时自动加载，运行时可通过界面增删改。
