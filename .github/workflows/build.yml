@@ -64,6 +64,7 @@ jobs:
           # ---- AppDir ----
           mkdir -p AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
           cp build/QtSerialAssist AppDir/usr/bin/
+          cp -r build/commands AppDir/usr/bin/
           cp build/QtSerialAssist_zh_CN.qm AppDir/usr/bin/ 2>/dev/null || true
 
           cat > AppDir/usr/share/applications/qtserialassist.desktop << 'DF'
@@ -164,10 +165,11 @@ jobs:
         with:
           path: artifacts
 
-      - name: 整理产物 (扁平化)
+      - name: 整理产物 (扁平化，排除 json)
         run: |
           mkdir -p release
-          find artifacts -type f -exec mv {} release/ \;
+          find artifacts -type f -not -name '*.json' -exec mv {} release/ \;
+          ls -lh release/
 
       - name: 创建 GitHub Release
         uses: softprops/action-gh-release@v2
