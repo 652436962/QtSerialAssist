@@ -64,7 +64,6 @@ jobs:
           # ---- AppDir ----
           mkdir -p AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
           cp build/QtSerialAssist AppDir/usr/bin/
-          cp -r build/commands AppDir/usr/bin/
           cp build/QtSerialAssist_zh_CN.qm AppDir/usr/bin/ 2>/dev/null || true
 
           cat > AppDir/usr/share/applications/qtserialassist.desktop << 'DF'
@@ -130,12 +129,20 @@ jobs:
           name: QtSerialAssist-Linux
           path: packages/
 
+      - name: 打包 Windows (windeployqt)
+        if: runner.os == 'Windows'
+        run: |
+          windeployqt --release --no-translations build/Release/QtSerialAssist.exe
+          mkdir dist
+          Copy-Item -Recurse build/Release/* dist/
+          Remove-Item -Force dist/QtSerialAssist_zh_CN.qm -ErrorAction SilentlyContinue
+
       - name: 上传构建产物 (Windows)
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: QtSerialAssist-Windows
-          path: build/Release/QtSerialAssist.exe
+          path: dist/
 
       - name: 上传构建产物 (macOS)
         if: runner.os == 'macOS'
