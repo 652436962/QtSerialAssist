@@ -134,8 +134,6 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           windeployqt --release --no-translations build/Release/QtSerialAssist.exe
-          Copy-Item -Recurse build/commands build/Release/ 2>$null
-          Copy-Item build/QtSerialAssist_zh_CN.qm build/Release/ 2>$null
           Compress-Archive -Path build/Release/* -DestinationPath QtSerialAssist-Windows-x86_64.zip
 
       - name: 上传 Windows 包
