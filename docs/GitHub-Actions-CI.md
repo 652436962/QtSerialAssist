@@ -166,6 +166,20 @@ else
 fi
 ```
 
+## 手动触发 Release
+
+推送 `v*` 标签即可触发完整的构建 + 自动发布流程：
+
+```bash
+# 本地打标签并推送
+git tag -a v1.0.1 -m "Release v1.0.1"
+git push origin v1.0.1
+```
+
+推送后前往 https://github.com/652436962/QtSerialAssist/actions 查看构建进度，构建完成后 Release 自动出现在 https://github.com/652436962/QtSerialAssist/releases。
+
+> **注意**：标签必须匹配 `v*` 模式（如 `v1.0.0`、`v2.1.3`），否则不会触发 Release。
+
 ## 复用清单
 
 适配到新项目时，主要修改以下位置：
@@ -188,3 +202,4 @@ fi
 4. **`macos-13` 已弃用** — 改用 `macos-latest`
 5. **Release 产物散开** — 用 `find` 过滤只取包文件（AppImage/deb/rpm/zip），不扁平化
 6. **`commands/` 路径** — CMake post-build 已拷贝到构建输出目录，不要在 CI 中重复复制
+7. **Windows DLL 多** — `windeployqt` 自动捆绑所有依赖 DLL 到 zip 中，这是正常现象，用户解压即用
