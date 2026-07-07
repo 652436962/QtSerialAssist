@@ -24,6 +24,7 @@ qt_add_executable(QtSerialAssist
     mainwindow.ui
     settingsdialog.cpp
     settingsdialog.h
+    resources.qrc
 )
 
 target_link_libraries(QtSerialAssist
