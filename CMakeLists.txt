@@ -91,3 +91,28 @@ if(EXISTS ${LRELEASE_EXECUTABLE})
 else()
     message(WARNING "lrelease not found, skipping translation file generation")
 endif()
+
+# ---- CPack 打包 (deb/rpm/AppImage) ----
+set(CPACK_PACKAGE_NAME "QtSerialAssist")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
+set(CPACK_PACKAGE_VENDOR "QtSerialAssist")
+set(CPACK_PACKAGE_CONTACT "https://github.com/652436962/QtSerialAssist")
+
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "QtSerialAssist")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
+
+# 安装时复制 commands 目录和翻译文件
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/commands/ DESTINATION bin/commands)
+install(FILES $<TARGET_FILE_DIR:QtSerialAssist>/QtSerialAssist_zh_CN.qm DESTINATION bin OPTIONAL)
+
+# 安装 desktop 文件和图标（启动器显示）
+install(FILES ${CMAKE_SOURCE_DIR}/qt.conf DESTINATION bin)
+install(FILES ${CMAKE_SOURCE_DIR}/QtSerialAssist.desktop DESTINATION share/applications)
+install(FILES ${CMAKE_SOURCE_DIR}/icons/logo.png DESTINATION share/icons/hicolor/256x256/apps RENAME QtSerialAssist.png)
+
+include(CPack)

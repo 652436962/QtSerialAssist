@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=QtSerialAssist
+Name[zh_CN]=QtSerialAssist 串口调试助手
+Comment=Cross-platform Serial/Network Debug Assistant
+Comment[zh_CN]=跨平台串口/网络调试助手
+Exec=QtSerialAssist
+Icon=QtSerialAssist
+Categories=Development;Debugger;
+Terminal=false
