@@ -1,118 +1,120 @@
 cmake_minimum_required(VERSION 3.19)
 project(QtSerialAssist
-    VERSION 1.0.0
+    VERSION 2.0.1
     DESCRIPTION "跨平台串口/网络调试助手"
     LANGUAGES CXX
 )
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
-# 输出构建平台信息
 message(STATUS "构建平台: ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_PROCESSOR}")
 message(STATUS "编译器: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Network Quick QuickControls2)
 
 qt_standard_project_setup()
 
 qt_add_executable(QtSerialAssist
     WIN32 MACOSX_BUNDLE
-    main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
-    settingsdialog.cpp
-    settingsdialog.h
+    src/main.cpp
+    src/backend/AppCore.cpp
+    src/backend/AppCore.h
+    src/backend/SerialPortManager.cpp
+    src/backend/SerialPortManager.h
+    src/backend/NetworkManager.cpp
+    src/backend/NetworkManager.h
+    src/backend/ModbusEngine.cpp
+    src/backend/ModbusEngine.h
+    src/backend/QuickCmdManager.cpp
+    src/backend/QuickCmdManager.h
+    src/backend/DataProcessor.cpp
+    src/backend/DataProcessor.h
+    src/backend/SettingsManager.cpp
+    src/backend/SettingsManager.h
     resources.qrc
+)
+
+qt_add_resources(QtSerialAssist "qml"
+    PREFIX "/"
+    FILES
+        qml/main.qml
+        qml/pages/LeftPanel.qml
+        qml/pages/RightPanel.qml
+        qml/pages/ModbusPanel.qml
+        qml/pages/QuickCmdPanel.qml
+        qml/pages/SettingsPage.qml
+        qml/components/DButton.qml
+        qml/components/DComboBox.qml
+        qml/components/DropWindow.qml
+        qml/components/DSwitch.qml
+        qml/components/DTextEdit.qml
+        qml/components/DTabBar.qml
+        qml/components/DTabButton.qml
+        qml/theme/DeepinTheme.qml
 )
 
 target_link_libraries(QtSerialAssist
     PRIVATE
         Qt::Core
-        Qt::Widgets
+        Qt::Gui
         Qt::Network
+        Qt::Quick
+        Qt::QuickControls2
 )
 
 # 串口支持（可选，Windows/Linux 需要对应开发包）
-find_package(Qt6 COMPONENTS SerialPort)
-if(Qt6SerialPort_FOUND)
+include(CheckIncludeFileCXX)
+check_include_file_cxx("QSerialPort" HAS_SERIAL_PORT_HEADER)
+
+if(TARGET Qt6::SerialPort)
+    set(HAS_SERIAL_PORT ON)
     target_link_libraries(QtSerialAssist PRIVATE Qt::SerialPort)
-    target_compile_definitions(QtSerialAssist PRIVATE HAS_SERIAL_PORT)
     message(STATUS "串口支持: 已启用")
 else()
-    message(STATUS "串口支持: 未找到 Qt6::SerialPort，已禁用")
+    find_package(Qt6 QUIET COMPONENTS SerialPort)
+    if(Qt6SerialPort_FOUND)
+        set(HAS_SERIAL_PORT ON)
+        target_link_libraries(QtSerialAssist PRIVATE Qt6::SerialPort)
+        message(STATUS "串口支持: 已启用")
+    else()
+        set(HAS_SERIAL_PORT OFF)
+        message(STATUS "串口支持: 未启用 (安装 qt6-serialport-dev 可启用)")
+    endif()
 endif()
 
-# 平台特定编译选项
+if(HAS_SERIAL_PORT)
+    target_compile_definitions(QtSerialAssist PRIVATE HAS_SERIAL_PORT)
+endif()
+
+# 翻译文件已预编译，直接复制
+add_custom_command(TARGET QtSerialAssist POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/QtSerialAssist_zh_CN.qm
+        ${CMAKE_BINARY_DIR}/QtSerialAssist_zh_CN.qm
+    COMMENT "复制翻译文件 QtSerialAssist_zh_CN.qm"
+)
+
+# post-build: 复制 commands 目录和翻译文件到构建目录
+add_custom_command(TARGET QtSerialAssist POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/commands
+        ${CMAKE_BINARY_DIR}/commands
+    COMMENT "复制 commands 目录"
+)
+
+# 编译选项
 if(MSVC)
-    target_compile_options(QtSerialAssist PRIVATE /W4 /utf-8)
-    target_link_options(QtSerialAssist PRIVATE /MANIFEST:NO)
+    target_compile_options(QtSerialAssist PRIVATE /W4)
 else()
     target_compile_options(QtSerialAssist PRIVATE -Wall -Wextra)
 endif()
 
-# macOS 特定设置
+# macOS / Windows 特定设置
 if(APPLE)
     set_target_properties(QtSerialAssist PROPERTIES
         MACOSX_BUNDLE TRUE
     )
 endif()
-
-install(TARGETS QtSerialAssist
-    BUNDLE  DESTINATION .
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-
-qt_generate_deploy_app_script(
-    TARGET QtSerialAssist
-    OUTPUT_SCRIPT deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR
-)
-install(SCRIPT ${deploy_script})
-
-# 复制快捷指令配置到构建目录
-add_custom_command(TARGET QtSerialAssist POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/commands
-    $<TARGET_FILE_DIR:QtSerialAssist>/commands
-)
-
-# 编译翻译文件并复制到构建目录
-set(LRELEASE_EXECUTABLE "/usr/lib/qt5/bin/lrelease")
-if(EXISTS ${LRELEASE_EXECUTABLE})
-    add_custom_command(TARGET QtSerialAssist POST_BUILD
-        COMMAND ${LRELEASE_EXECUTABLE}
-        ${CMAKE_SOURCE_DIR}/QtSerialAssist_zh_CN.ts
-        -qm $<TARGET_FILE_DIR:QtSerialAssist>/QtSerialAssist_zh_CN.qm
-        COMMENT "生成翻译文件 QtSerialAssist_zh_CN.qm"
-    )
-else()
-    message(WARNING "lrelease not found, skipping translation file generation")
-endif()
-
-# ---- CPack 打包 (deb/rpm/AppImage) ----
-set(CPACK_PACKAGE_NAME "QtSerialAssist")
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
-set(CPACK_PACKAGE_VENDOR "QtSerialAssist")
-set(CPACK_PACKAGE_CONTACT "https://github.com/652436962/QtSerialAssist")
-
-set(CPACK_GENERATOR "DEB")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "QtSerialAssist")
-set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
-set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
-
-# 安装时复制 commands 目录和翻译文件
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/commands/ DESTINATION bin/commands)
-install(FILES $<TARGET_FILE_DIR:QtSerialAssist>/QtSerialAssist_zh_CN.qm DESTINATION bin OPTIONAL)
-
-# 安装 desktop 文件和图标（启动器显示）
-install(FILES ${CMAKE_SOURCE_DIR}/qt.conf DESTINATION bin)
-install(FILES ${CMAKE_SOURCE_DIR}/QtSerialAssist.desktop DESTINATION share/applications)
-install(FILES ${CMAKE_SOURCE_DIR}/icons/logo.png DESTINATION share/icons/hicolor/256x256/apps RENAME QtSerialAssist.png)
-
-include(CPack)

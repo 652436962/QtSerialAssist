@@ -1,20 +1,20 @@
 # QtSerialAssist
 
-跨平台串口/网络调试助手，基于 Qt6 开发。
+跨平台串口/网络调试助手，基于 Qt6 + QML 开发。
 
 ## 功能
 
-- **串口调试**：波特率/数据位/校验位/流控设置，HEX/ASCII 收发
+- **串口调试**：波特率/数据位/校验位/流控设置，HEX/ASCII 收发，发送/接收数据方向标识
 - **网络调试**：TCP 客户端/服务器、UDP 通信
 - **Modbus**：RTU/ASCII/TCP 格式请求帧生成，CRC16/LRC 校验
-- **快捷指令**：分组管理，支持延时顺序发送，配置持久化为 JSON 文件
-- **深色主题**：现代化深色 UI
+- **快捷指令**：分组管理，支持批量发送，配置持久化为 JSON 文件
+- **深色主题**：Deepin 风格深色/浅色双主题，支持跟随系统
 
 ## 构建
 
 ### 依赖
 
-- Qt 6.5+（Core、Widgets、Network）
+- Qt 6.5+（Core、Gui、Network、Quick、QuickControls2）
 - Qt SerialPort（可选，用于串口功能）
 
 ### Linux
@@ -83,11 +83,15 @@ sudo udevadm trigger
 
 ## 项目结构
 
-| 文件 | 说明 |
-|------|------|
-| `mainwindow.h/cpp` | 主窗口逻辑 |
-| `mainwindow.ui` | UI 布局 |
-| `CMakeLists.txt` | 构建配置 |
+| 文件/目录 | 说明 |
+|-----------|------|
+| `src/main.cpp` | 入口，QML 引擎初始化 |
+| `src/backend/` | C++ 后端模块（AppCore、SerialPort、Network、DataProcessor 等） |
+| `qml/main.qml` | 主窗口 QML |
+| `qml/pages/` | 各面板 QML（LeftPanel、RightPanel、ModbusPanel、QuickCmdPanel） |
+| `qml/components/` | 通用组件（DButton、DComboBox、DSwitch 等） |
+| `qml/theme/` | Deepin 主题定义 |
+| `CMakeLists.txt` | CMake 构建配置 |
 | `commands/` | 快捷指令 JSON 配置 |
 
 ## 许可
