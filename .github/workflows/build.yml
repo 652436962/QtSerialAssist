@@ -41,6 +41,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev
 
+      - name: 创建 AGL/OpenGL 桩框架 (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p stub/AGL.framework stub/OpenGL.framework
+          clang -x c /dev/null -o stub/AGL.framework/AGL -dynamiclib
+          clang -x c /dev/null -o stub/OpenGL.framework/OpenGL -dynamiclib
+
       - name: 配置 CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 

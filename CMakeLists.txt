@@ -125,9 +125,16 @@ if(APPLE)
     set_target_properties(QtSerialAssist PROPERTIES
         MACOSX_BUNDLE TRUE
     )
-    # aqtinstall 的 Qt 6.8.2 预编译包可能在旧版 macOS SDK 上构建，
-    # CMake import target 中仍会注入 -framework AGL/OpenGL；
-    # target_link_options/target_link_libraries 都会被 CMake 转换参数，
-    # 只有直接设 CMAKE_EXE_LINKER_FLAGS 能原样传给 ld
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-weak_framework,AGL -Wl,-weak_framework,OpenGL")
+    # aqtinstall 的 Qt 预编译包在旧版 macOS SDK 上构建，
+    # CMake import target 中仍会注入 -framework AGL/OpenGL 强引用。
+    # macOS 15+ 已移除这些框架，需要桩框架 + 弱链接配合
+    if(EXISTS "${CMAKE_SOURCE_DIR}/stub/AGL.framework")
+        target_link_options(QtSerialAssist PRIVATE
+            "LINKER:-F${CMAKE_SOURCE_DIR}/stub"
+            "LINKER:-weak_framework,AGL"
+            "LINKER:-weak_framework,OpenGL"
+        )
+    else()
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-weak_framework,AGL -Wl,-weak_framework,OpenGL")
+    endif()
 endif()

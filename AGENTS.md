@@ -50,7 +50,7 @@ Single-binary **Qt6 QML** desktop app v2.0.1. `AppCore` (C++ backend) exposed to
 
 ## Gotchas
 - **`qt.conf` sets Qt6 prefix** to `/usr/lib/x86_64-linux-gnu/qt6` — only relevant for running system Qt without env vars.
-- **macOS builds** still need AGL/OpenGL weak-link flags (`CMakeLists.txt:129-131`) because aqtinstall's Qt 6.8.2 pre-built binaries may carry stale framework references. CI disables Qt cache to avoid stale configs.
+- **macOS builds** need stub AGL/OpenGL frameworks + weak-link flags (`CMakeLists.txt:132-137`). CI creates empty dylibs under `stub/` before configure because aqtinstall's Qt pre-built binaries carry stale `-framework AGL` references on macOS 15+. CI disables Qt cache to avoid stale configs.
 - **No lrelease Qt5 gotcha anymore** — `CMakeLists.txt:93` uses `find_program(LRELEASE_EXECUTABLE lrelease-qt6 lrelease ...)`, correctly finding Qt6's lrelease first.
 - **No tests, no lint/formatter config**. No `.clang-format`, no `.clang-tidy`, no test framework.
 - **Pre-built `build_linux/`** exists in-repo (out-of-source build artifact, tracked).
