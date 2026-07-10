@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.1 (2026-07-10)
+
+### 修复
+- macOS: 桩框架方案替代 CMAKE_EXE_LINKER_FLAGS，彻底解决 AGL/OpenGL 链接失败
+- Linux: deb 包逐目录复制修复 usr 结构问题
+- CI: 禁用 Qt 缓存避免旧版本残留
+
 ## 2.1.0 (2026-07-10)
 
 ### 新增
