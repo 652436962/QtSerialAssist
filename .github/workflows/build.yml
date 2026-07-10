@@ -42,7 +42,9 @@ jobs:
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev
 
       - name: 配置 CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: |
+          rm -rf build
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: 编译
         run: cmake --build build --config Release --parallel
