@@ -126,8 +126,8 @@ if(APPLE)
         MACOSX_BUNDLE TRUE
     )
     # macOS 15+ 已移除 AGL 框架，弱链接避免链接失败
-    target_link_options(QtSerialAssist PRIVATE
-        "-Wl,-weak_framework,AGL"
-        "-Wl,-weak_framework,OpenGL"
+    target_link_libraries(QtSerialAssist PRIVATE
+        "-weak_framework" "AGL"
+        "-weak_framework" "OpenGL"
     )
 endif()
