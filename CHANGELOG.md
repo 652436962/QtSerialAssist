@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.2 (2026-07-10)
+
+### 变更
+- Linux: deb 安装路径改为 /opt/QtSerialAssist，内置启动脚本
+- Linux: AppImage/deb 使用真实应用图标替换占位图标
+
 ## 2.1.1 (2026-07-10)
 
 ### 修复

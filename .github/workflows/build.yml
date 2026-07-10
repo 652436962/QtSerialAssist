@@ -96,7 +96,7 @@ jobs:
           AR
           chmod +x AppDir/AppRun
 
-          touch AppDir/usr/share/icons/hicolor/256x256/apps/qtserialassist.png
+          cp icons/icon_256x256.png AppDir/usr/share/icons/hicolor/256x256/apps/qtserialassist.png
 
           # ---- AppImage (linuxdeploy + qt plugin) ----
           wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
@@ -105,17 +105,43 @@ jobs:
           export LDAI_OUTPUT="QtSerialAssist-${VERSION}-linux-${ARCH}.AppImage"
           ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
 
-          # ---- deb ----
+          # ---- deb (安装到 /opt) ----
+          OPT_DIR="opt/QtSerialAssist"
           mkdir -p deb-pkg/DEBIAN
-          mkdir -p deb-pkg/usr/bin deb-pkg/usr/lib deb-pkg/usr/plugins deb-pkg/usr/qml
-          mkdir -p deb-pkg/usr/share/applications deb-pkg/usr/share/icons
-          cp -r AppDir/usr/bin/* deb-pkg/usr/bin/
-          cp -r AppDir/usr/lib/* deb-pkg/usr/lib/ 2>/dev/null || true
-          cp -r AppDir/usr/plugins/* deb-pkg/usr/plugins/ 2>/dev/null || true
-          cp -r AppDir/usr/qml/* deb-pkg/usr/qml/ 2>/dev/null || true
-          cp -r AppDir/usr/share/applications/* deb-pkg/usr/share/applications/
-          cp -r AppDir/usr/share/icons/* deb-pkg/usr/share/icons/
-          rm -rf deb-pkg/usr/share/doc
+          mkdir -p "deb-pkg/${OPT_DIR}"
+          mkdir -p deb-pkg/usr/share/applications deb-pkg/usr/share/icons/hicolor/256x256/apps
+
+          cp AppDir/usr/bin/QtSerialAssist "deb-pkg/${OPT_DIR}/"
+          cp -r AppDir/usr/bin/commands "deb-pkg/${OPT_DIR}/"
+          cp AppDir/usr/bin/QtSerialAssist_zh_CN.qm "deb-pkg/${OPT_DIR}/" 2>/dev/null || true
+          cp -r AppDir/usr/lib "deb-pkg/${OPT_DIR}/"
+          cp -r AppDir/usr/plugins "deb-pkg/${OPT_DIR}/"
+          cp -r AppDir/usr/qml "deb-pkg/${OPT_DIR}/"
+
+          cat > "deb-pkg/${OPT_DIR}/QtSerialAssist.sh" << 'WRAPPER'
+          #!/bin/bash
+          APP_DIR="/opt/QtSerialAssist"
+          export LD_LIBRARY_PATH="$APP_DIR/lib:$LD_LIBRARY_PATH"
+          export QT_PLUGIN_PATH="$APP_DIR/plugins"
+          export QML2_IMPORT_PATH="$APP_DIR/qml"
+          exec "$APP_DIR/QtSerialAssist" "$@"
+          WRAPPER
+          chmod +x "deb-pkg/${OPT_DIR}/QtSerialAssist.sh"
+
+          cat > deb-pkg/usr/share/applications/qtserialassist.desktop << 'DF'
+          [Desktop Entry]
+          Type=Application
+          Name=QtSerialAssist
+          Comment=串口/网络调试助手
+          Exec=/opt/QtSerialAssist/QtSerialAssist.sh
+          Icon=qtserialassist
+          Categories=Development;
+          Terminal=false
+          DF
+
+          cp AppDir/usr/share/icons/hicolor/256x256/apps/qtserialassist.png \
+             deb-pkg/usr/share/icons/hicolor/256x256/apps/
+
           cat > deb-pkg/DEBIAN/control << CTRL
           Package: qtserialassist
           Version: ${VERSION}
