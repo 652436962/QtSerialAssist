@@ -74,6 +74,12 @@ jobs:
           cp -r build/commands AppDir/usr/bin/
           cp build/QtSerialAssist_zh_CN.qm AppDir/usr/bin/ 2>/dev/null || true
 
+          # qt.conf: Qt 自行解析 plugins/qml/lib 路径，避免 Deepin 污染
+          cat > AppDir/usr/bin/qt.conf << 'QTCONF'
+          [Paths]
+          Prefix = /usr
+          QTCONF
+
           cat > AppDir/usr/share/applications/qtserialassist.desktop << 'DF'
           [Desktop Entry]
           Type=Application
@@ -90,8 +96,8 @@ jobs:
           HERE="$(dirname "$(readlink -f "$0")")"
           export PATH="$HERE/usr/bin:$PATH"
           export LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"
-          export QT_PLUGIN_PATH="$HERE/usr/plugins"
-          export QML2_IMPORT_PATH="$HERE/usr/qml"
+          export QT_QPA_PLATFORM=xcb
+          export QT_QPA_PLATFORMTHEME=
           exec "$HERE/usr/bin/QtSerialAssist" "$@"
           AR
           chmod +x AppDir/AppRun
@@ -118,12 +124,17 @@ jobs:
           cp -r AppDir/usr/plugins "deb-pkg/${OPT_DIR}/"
           cp -r AppDir/usr/qml "deb-pkg/${OPT_DIR}/" 2>/dev/null || true
 
+          # qt.conf: Qt 自行解析 plugins/qml 路径，无需脚本设 QT_PLUGIN_PATH 等
+          cat > "deb-pkg/${OPT_DIR}/qt.conf" << 'QTCONF'
+          [Paths]
+          Prefix = /opt/QtSerialAssist
+          QTCONF
+
+          # 启动脚本仅需设置 LD_LIBRARY_PATH（动态链接器加载 .so 需要）
           cat > "deb-pkg/${OPT_DIR}/QtSerialAssist.sh" << 'WRAPPER'
           #!/bin/bash
           APP_DIR="/opt/QtSerialAssist"
           export LD_LIBRARY_PATH="$APP_DIR/lib:$LD_LIBRARY_PATH"
-          export QT_PLUGIN_PATH="$APP_DIR/plugins"
-          export QML2_IMPORT_PATH="$APP_DIR/qml"
           exec "$APP_DIR/QtSerialAssist" "$@"
           WRAPPER
           chmod +x "deb-pkg/${OPT_DIR}/QtSerialAssist.sh"

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.4 (2026-07-10)
+
+### 修复
+- Linux: AppImage/deb 添加 qt.conf 修复运行时加载不出插件
+- Linux: AppImage 强制 xcb 平台避免 Deepin 主题污染
+
 ## 2.1.3 (2026-07-10)
 
 ### 修复
