@@ -33,7 +33,7 @@ jobs:
         with:
           version: '6.8.2'
           modules: 'qtserialport'
-          cache: true
+          cache: false
 
       - name: 安装 Linux 依赖
         if: runner.os == 'Linux'
