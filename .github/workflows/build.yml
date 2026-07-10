@@ -116,7 +116,7 @@ jobs:
           cp AppDir/usr/bin/QtSerialAssist_zh_CN.qm "deb-pkg/${OPT_DIR}/" 2>/dev/null || true
           cp -r AppDir/usr/lib "deb-pkg/${OPT_DIR}/"
           cp -r AppDir/usr/plugins "deb-pkg/${OPT_DIR}/"
-          cp -r AppDir/usr/qml "deb-pkg/${OPT_DIR}/"
+          cp -r AppDir/usr/qml "deb-pkg/${OPT_DIR}/" 2>/dev/null || true
 
           cat > "deb-pkg/${OPT_DIR}/QtSerialAssist.sh" << 'WRAPPER'
           #!/bin/bash
