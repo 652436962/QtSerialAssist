@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.5
+
+### 修复
+- AppImage: 恢复 QML2_IMPORT_PATH 修复 QML 模块加载
+
 ## 2.1.4 (2026-07-10)
 
 ### 修复

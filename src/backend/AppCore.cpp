@@ -81,7 +81,7 @@ QString AppCore::statusMessage() const { return m_statusMessage; }
 
 QString AppCore::version() const
 {
-    return QString("2.1.4 (Qt %1)").arg(QT_VERSION_STR);
+    return QString("2.1.5 (Qt %1)").arg(QT_VERSION_STR);
 }
 
 bool AppCore::autoSendEnabled() const { return m_autoSendEnabled; }
