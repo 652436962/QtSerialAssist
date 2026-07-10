@@ -107,7 +107,15 @@ jobs:
 
           # ---- deb ----
           mkdir -p deb-pkg/DEBIAN
-          cp -r AppDir/usr deb-pkg/
+          mkdir -p deb-pkg/usr/bin deb-pkg/usr/lib deb-pkg/usr/plugins deb-pkg/usr/qml
+          mkdir -p deb-pkg/usr/share/applications deb-pkg/usr/share/icons
+          cp -r AppDir/usr/bin/* deb-pkg/usr/bin/
+          cp -r AppDir/usr/lib/* deb-pkg/usr/lib/ 2>/dev/null || true
+          cp -r AppDir/usr/plugins/* deb-pkg/usr/plugins/ 2>/dev/null || true
+          cp -r AppDir/usr/qml/* deb-pkg/usr/qml/ 2>/dev/null || true
+          cp -r AppDir/usr/share/applications/* deb-pkg/usr/share/applications/
+          cp -r AppDir/usr/share/icons/* deb-pkg/usr/share/icons/
+          rm -rf deb-pkg/usr/share/doc
           cat > deb-pkg/DEBIAN/control << CTRL
           Package: qtserialassist
           Version: ${VERSION}
