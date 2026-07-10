@@ -1,0 +1,28 @@
+# Changelog
+
+## 2.1.0 (2026-07-10)
+
+### 新增
+- Windows 安装版（NSIS 生成 .exe 安装程序，支持桌面快捷方式和开始菜单）
+- macOS 分发格式从 .zip 改为 .dmg 磁盘映像
+
+### 变更
+- CI Qt 版本升级至 6.8.2，macOS runner 恢复为 macos-latest
+- 统一所有平台产物命名格式：`QtSerialAssist-{version}-{platform}-{arch}.{ext}`
+- Linux 包增加平台标识（`-linux-` 前缀）
+
+### 修复
+- 修复 macOS 15+ 构建失败（AGL/OpenGL 框架弱链接适配）
+- 修复 install-qt-action 缓存污染导致的 AGL 链接错误
+
+## 2.0.1 (2025-06-03)
+
+### 新增
+- QML 重构：Deepin 风格深色/浅色双主题，支持跟随系统
+- 接收窗口 ScrollView，收发方向标识（RX/TX 颜色区分）
+- 终端模式、Modbus 面板、快捷指令面板
+
+### 变更
+- CI Linux 打包 AppImage / deb / rpm 三种格式
+- CI 自动创建 GitHub Release（推送 v* 标签触发）
+- 文档添加 Linux 串口权限说明

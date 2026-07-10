@@ -94,6 +94,10 @@ sudo udevadm trigger
 | `CMakeLists.txt` | CMake 构建配置 |
 | `commands/` | 快捷指令 JSON 配置 |
 
+## 免责声明
+
+本工具仅供开发调试、学习和研究使用。使用者应遵守当地法律法规，不得将其用于非法用途。因使用本工具造成的任何直接或间接损失，开发者不承担任何责任。
+
 ## 许可
 
 MIT License

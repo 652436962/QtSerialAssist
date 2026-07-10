@@ -95,7 +95,7 @@ jobs:
           wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           wget -nv https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
-          export LDAI_OUTPUT="QtSerialAssist-${VERSION}-${ARCH}.AppImage"
+          export LDAI_OUTPUT="QtSerialAssist-${VERSION}-linux-${ARCH}.AppImage"
           ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
 
           # ---- deb ----
@@ -110,17 +110,17 @@ jobs:
           Maintainer: QtSerialAssist
           Description: 跨平台串口/网络调试助手
           CTRL
-          dpkg-deb --build deb-pkg "qtserialassist_${VERSION}_amd64.deb"
+          dpkg-deb --build deb-pkg "QtSerialAssist-${VERSION}-linux-amd64.deb"
 
           # ---- rpm (alien convert) ----
-          alien -r --scripts "qtserialassist_${VERSION}_amd64.deb"
-          mv qtserialassist-${VERSION}-*.rpm "qtserialassist-${VERSION}.x86_64.rpm" 2>/dev/null || true
+          alien -r --scripts "QtSerialAssist-${VERSION}-linux-amd64.deb"
+          mv qtserialassist-${VERSION}-*.rpm "QtSerialAssist-${VERSION}-linux-x86_64.rpm" 2>/dev/null || true
 
           # ---- copy artifacts ----
           mkdir -p packages
           cp QtSerialAssist-*.AppImage packages/
-          cp qtserialassist_*.deb packages/
-          cp qtserialassist-*.rpm packages/
+          cp QtSerialAssist-*.deb packages/
+          cp QtSerialAssist-*.rpm packages/
           ls -lh packages/
 
       - name: 上传 Linux 包 (AppImage/deb/rpm)
@@ -130,31 +130,71 @@ jobs:
           name: QtSerialAssist-Linux
           path: packages/
 
-      - name: 打包 Windows (windeployqt)
+      - name: 打包 Windows 便携版
         if: runner.os == 'Windows'
         run: |
+          $VERSION = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ inputs.version }}" } elseif ("${env:GITHUB_REF}" -match '^refs/tags/v(.+)$') { $matches[1] } else { "1.0.0" }
           windeployqt --release --no-translations build/Release/QtSerialAssist.exe
-          Compress-Archive -Path build/Release/* -DestinationPath QtSerialAssist-Windows-x86_64.zip
+          Compress-Archive -Path build/Release/* -DestinationPath "QtSerialAssist-${VERSION}-windows-x86_64-portable.zip"
+
+      - name: 打包 Windows 安装版 (NSIS)
+        if: runner.os == 'Windows'
+        run: |
+          $VERSION = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ inputs.version }}" } elseif ("${env:GITHUB_REF}" -match '^refs/tags/v(.+)$') { $matches[1] } else { "1.0.0" }
+          $SRCDIR = "build\Release"
+          $OUTFILE = "QtSerialAssist-${VERSION}-windows-x86_64-setup.exe"
+          $NSIS = @"
+          Name "QtSerialAssist"
+          OutFile "$OUTFILE"
+          InstallDir "`$PROGRAMFILES64\QtSerialAssist"
+          RequestExecutionLevel admin
+
+          Section "Install"
+            SetOutPath `$INSTDIR
+            File /r "$SRCDIR\*"
+            CreateShortCut "`$DESKTOP\QtSerialAssist.lnk" "`$INSTDIR\QtSerialAssist.exe"
+            CreateDirectory "`$SMPROGRAMS\QtSerialAssist"
+            CreateShortCut "`$SMPROGRAMS\QtSerialAssist\QtSerialAssist.lnk" "`$INSTDIR\QtSerialAssist.exe"
+            CreateShortCut "`$SMPROGRAMS\QtSerialAssist\Uninstall.lnk" "`$INSTDIR\uninstall.exe"
+            WriteUninstaller "`$INSTDIR\uninstall.exe"
+          SectionEnd
+
+          Section "Uninstall"
+            RMDir /r "`$INSTDIR"
+            Delete "`$DESKTOP\QtSerialAssist.lnk"
+            RMDir /r "`$SMPROGRAMS\QtSerialAssist"
+          SectionEnd
+          "@
+          $NSIS | Out-File -FilePath installer.nsi -Encoding ASCII
+          makensis installer.nsi
 
       - name: 上传 Windows 包
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: QtSerialAssist-Windows
-          path: QtSerialAssist-Windows-x86_64.zip
+          path: QtSerialAssist-*-windows-x86_64-*
 
-      - name: 打包 macOS
+      - name: 打包 macOS (dmg)
         if: runner.os == 'macOS'
         run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION=${{ inputs.version }}
+          elif [ "${GITHUB_REF#refs/tags/v}" != "$GITHUB_REF" ]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=1.0.0
+          fi
           cd build
-          zip -r ../QtSerialAssist-macOS-x86_64.zip QtSerialAssist.app
+          macdeployqt QtSerialAssist.app -dmg
+          mv QtSerialAssist.dmg ../QtSerialAssist-${VERSION}-macos-x86_64.dmg
 
       - name: 上传 macOS 包
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: QtSerialAssist-macOS
-          path: QtSerialAssist-macOS-x86_64.zip
+          path: QtSerialAssist-*-macos-x86_64.dmg
 
   release:
     name: 创建 Release
@@ -172,7 +212,7 @@ jobs:
       - name: 整理产物
         run: |
           mkdir -p release
-          find artifacts -type f \( -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' -o -name '*.zip' \) -exec cp {} release/ \;
+          find artifacts -type f \( -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' -o -name '*.zip' -o -name '*.exe' -o -name '*.dmg' \) -exec cp {} release/ \;
           ls -lh release/
 
       - name: 创建 GitHub Release
