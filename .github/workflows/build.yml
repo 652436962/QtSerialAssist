@@ -143,6 +143,9 @@ jobs:
           #!/bin/bash
           APP_DIR="/opt/QtSerialAssist"
           export LD_LIBRARY_PATH="$APP_DIR/lib:$LD_LIBRARY_PATH"
+          export QML2_IMPORT_PATH="$APP_DIR/qml"
+          export QT_QPA_PLATFORM=xcb
+          export QT_QPA_PLATFORMTHEME=
           exec "$APP_DIR/QtSerialAssist" "$@"
           WRAPPER
           chmod +x "deb-pkg/${OPT_DIR}/QtSerialAssist.sh"
