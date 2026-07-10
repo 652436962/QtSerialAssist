@@ -31,7 +31,7 @@ jobs:
       - name: 安装 Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.0'
+          version: '6.5.3'
           modules: 'qtserialport'
           cache: true
 
