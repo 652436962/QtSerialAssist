@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.6 (2026-07-10)
+
+### 修复
+- AppImage: 手动复制 QtQml/QtQuick 模块，解决 linuxdeploy-plugin-qt 无法扫描 qrc 内 QML
+
 ## 2.1.5
 
 ### 修复

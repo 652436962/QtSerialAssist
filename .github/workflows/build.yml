@@ -80,6 +80,13 @@ jobs:
           Prefix = /usr
           QTCONF
 
+          # linuxdeploy-plugin-qt 不自动部署 QML 模块（qrc 内 QML 无法被 qmlimportscanner 扫描）
+          # 手动从 Qt 安装目录复制 QtQuick 所需的 QML 模块
+          QML_SRC=$(qmake6 -query QT_INSTALL_QML 2>/dev/null || qmake -query QT_INSTALL_QML)
+          mkdir -p AppDir/usr/qml
+          [ -d "$QML_SRC/QtQml" ] && cp -r "$QML_SRC/QtQml" AppDir/usr/qml/
+          [ -d "$QML_SRC/QtQuick" ] && cp -r "$QML_SRC/QtQuick" AppDir/usr/qml/
+
           cat > AppDir/usr/share/applications/qtserialassist.desktop << 'DF'
           [Desktop Entry]
           Type=Application
