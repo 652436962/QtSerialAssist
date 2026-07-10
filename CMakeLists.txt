@@ -127,10 +127,7 @@ if(APPLE)
     )
     # aqtinstall 的 Qt 6.8.2 预编译包可能在旧版 macOS SDK 上构建，
     # CMake import target 中仍会注入 -framework AGL/OpenGL；
-    # 使用 target_link_options 确保弱链接标志位于 LINK_FLAGS 末尾，
-    # 覆盖来自 Qt 的强引用
-    target_link_options(QtSerialAssist PRIVATE
-        -Wl,-weak_framework,AGL
-        -Wl,-weak_framework,OpenGL
-    )
+    # target_link_options/target_link_libraries 都会被 CMake 转换参数，
+    # 只有直接设 CMAKE_EXE_LINKER_FLAGS 能原样传给 ld
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-weak_framework,AGL -Wl,-weak_framework,OpenGL")
 endif()
