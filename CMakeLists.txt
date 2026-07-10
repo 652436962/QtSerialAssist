@@ -125,7 +125,4 @@ if(APPLE)
     set_target_properties(QtSerialAssist PROPERTIES
         MACOSX_BUNDLE TRUE
     )
-    # macOS 15+ 已移除 AGL/OpenGL 框架，弱链接避免链接失败
-    # 直接设 CMAKE_EXE_LINKER_FLAGS 绕过 CMake 参数处理
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-weak_framework,AGL -Wl,-weak_framework,OpenGL")
 endif()
