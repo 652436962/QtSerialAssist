@@ -89,15 +89,23 @@ if(HAS_SERIAL_PORT)
     target_compile_definitions(QtSerialAssist PRIVATE HAS_SERIAL_PORT)
 endif()
 
-# 翻译文件已预编译，直接复制
-add_custom_command(TARGET QtSerialAssist POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_SOURCE_DIR}/QtSerialAssist_zh_CN.qm
-        ${CMAKE_BINARY_DIR}/QtSerialAssist_zh_CN.qm
-    COMMENT "复制翻译文件 QtSerialAssist_zh_CN.qm"
-)
+# 翻译文件：使用 lrelease 编译 .ts → .qm
+find_program(LRELEASE_EXECUTABLE lrelease-qt6 lrelease HINTS ${QT_HOST_PATH}/bin ${Qt6_DIR}/../../../bin)
+if(LRELEASE_EXECUTABLE)
+    add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/QtSerialAssist_zh_CN.qm
+        COMMAND ${LRELEASE_EXECUTABLE} ${CMAKE_SOURCE_DIR}/QtSerialAssist_zh_CN.ts -qm ${CMAKE_BINARY_DIR}/QtSerialAssist_zh_CN.qm
+        DEPENDS ${CMAKE_SOURCE_DIR}/QtSerialAssist_zh_CN.ts
+        COMMENT "生成翻译文件 QtSerialAssist_zh_CN.qm"
+    )
+    add_custom_target(translations ALL DEPENDS ${CMAKE_BINARY_DIR}/QtSerialAssist_zh_CN.qm)
+    add_dependencies(QtSerialAssist translations)
+    message(STATUS "翻译支持: lrelease 已找到 (${LRELEASE_EXECUTABLE})")
+else()
+    message(WARNING "翻译支持: lrelease 未找到，跳过翻译文件生成")
+endif()
 
-# post-build: 复制 commands 目录和翻译文件到构建目录
+# post-build: 复制 commands 目录
 add_custom_command(TARGET QtSerialAssist POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/commands

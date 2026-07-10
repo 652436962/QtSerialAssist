@@ -4,20 +4,5 @@
         <file>icons/icon_32x32.png</file>
         <file>icons/icon_48x48.png</file>
         <file>icons/icon_64x64.png</file>
-        <file>QtSerialAssist_zh_CN.qm</file>
-        <file>qml/main.qml</file>
-        <file>qml/theme/DeepinTheme.qml</file>
-        <file>qml/components/DButton.qml</file>
-        <file>qml/components/DComboBox.qml</file>
-        <file>qml/components/DropWindow.qml</file>
-        <file>qml/components/DSwitch.qml</file>
-        <file>qml/components/DTabBar.qml</file>
-        <file>qml/components/DTabButton.qml</file>
-        <file>qml/components/DTextEdit.qml</file>
-        <file>qml/pages/LeftPanel.qml</file>
-        <file>qml/pages/RightPanel.qml</file>
-        <file>qml/pages/ModbusPanel.qml</file>
-        <file>qml/pages/QuickCmdPanel.qml</file>
-        <file>qml/pages/SettingsPage.qml</file>
     </qresource>
 </RCC>
