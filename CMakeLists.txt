@@ -125,9 +125,4 @@ if(APPLE)
     set_target_properties(QtSerialAssist PROPERTIES
         MACOSX_BUNDLE TRUE
     )
-    # Qt 预编译库仍引用 AGL/OpenGL（Apple 已废弃），弱链接避免链接失败
-    target_link_options(QtSerialAssist PRIVATE
-        "LINKER:-weak_framework,AGL"
-        "LINKER:-weak_framework,OpenGL"
-    )
 endif()
