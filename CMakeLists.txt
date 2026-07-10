@@ -125,6 +125,4 @@ if(APPLE)
     set_target_properties(QtSerialAssist PROPERTIES
         MACOSX_BUNDLE TRUE
     )
-    # AGL 框架在 macOS 15+ 已移除，弱引用避免链接失败
-    target_link_options(QtSerialAssist PRIVATE "-Wl,-weak_framework,AGL")
 endif()
