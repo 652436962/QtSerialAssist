@@ -85,3 +85,8 @@ CMakeLists.txt.user*
 /debug.log
 /picture/
 /logs/
+
+# 本地打包测试
+deb-pkg/
+AppDir/
+*.deb

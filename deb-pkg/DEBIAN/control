@@ -1,7 +1,0 @@
-Package: qtserialassist
-Version: 2.1.8
-Section: utils
-Priority: optional
-Architecture: amd64
-Maintainer: QtSerialAssist
-Description: 跨平台串口/网络调试助手
