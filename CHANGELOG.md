@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.9
+
+### 修复
+- deb: control文件改用heredoc（顶格）+ sed替换版本号，添加--root-owner-group
+
 ## 2.1.8
 
 ### 修复
