@@ -172,7 +172,10 @@ jobs:
           Maintainer: QtSerialAssist
           Description: 跨平台串口/网络调试助手" > deb-pkg/DEBIAN/control
           echo "=== control ===" && cat deb-pkg/DEBIAN/control
+          echo "=== deb-pkg tree ===" && find deb-pkg -type f | sort
+          dpkg-deb --version
           dpkg-deb --root-owner-group -b deb-pkg "QtSerialAssist-${VERSION}-linux-amd64.deb"
+          echo "=== verify ===" && dpkg-deb --info "QtSerialAssist-${VERSION}-linux-amd64.deb" | head -8
 
           # ---- rpm (alien convert) ----
           alien -r --scripts "QtSerialAssist-${VERSION}-linux-amd64.deb"
