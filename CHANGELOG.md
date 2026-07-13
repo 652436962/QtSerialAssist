@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.8
+
+### 修复
+- deb: control文件改用printf写入，避免YAML缩进导致字段前有空格
+
 ## 2.1.7
 
 ### 修复
