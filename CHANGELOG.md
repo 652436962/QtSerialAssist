@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.10
+
+### 修复
+- YAML 语法错误：heredoc 的 `<<` 被 GitHub Actions 解析器误解为合并键，改用多行 `echo` 写入 control 文件
+- deb: 补回 `dpkg-deb --root-owner-group` 确保包内文件属主正确
+
 ## 2.1.9
 
 ### 修复

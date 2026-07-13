@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 project(QtSerialAssist
-    VERSION 2.1.9
+    VERSION 2.1.10
     DESCRIPTION "跨平台串口/网络调试助手"
     LANGUAGES CXX
 )
