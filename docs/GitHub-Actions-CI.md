@@ -178,7 +178,7 @@ git push origin v1.0.1
 
 推送后前往 https://github.com/652436962/QtSerialAssist/actions 查看构建进度，构建完成后 Release 自动出现在 https://github.com/652436962/QtSerialAssist/releases。
 
-> **注意**：标签必须匹配 `v*` 模式（如 `v1.0.0`、`v2.1.3`），否则不会触发 Release。
+> **注意**：标签必须匹配 `v*` 模式（如 `v1.0.0`、`v2.1.8`），否则不会触发 Release。
 
 ## 复用清单
 

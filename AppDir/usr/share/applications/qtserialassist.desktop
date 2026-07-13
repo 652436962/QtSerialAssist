@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=QtSerialAssist
-Comment=串口/网络调试助手
-Exec=QtSerialAssist
-Icon=qtserialassist
-Categories=Development;
-Terminal=false
