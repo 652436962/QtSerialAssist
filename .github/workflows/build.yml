@@ -164,13 +164,13 @@ jobs:
           cp AppDir/usr/share/icons/hicolor/256x256/apps/qtserialassist.png \
              deb-pkg/usr/share/icons/hicolor/256x256/apps/
 
-          echo "Package: qtserialassist
-          Version: ${VERSION}
-          Section: utils
-          Priority: optional
-          Architecture: amd64
-          Maintainer: QtSerialAssist
-          Description: 跨平台串口/网络调试助手" > deb-pkg/DEBIAN/control
+          echo "Package: qtserialassist" > deb-pkg/DEBIAN/control
+          echo "Version: ${VERSION}" >> deb-pkg/DEBIAN/control
+          echo "Section: utils" >> deb-pkg/DEBIAN/control
+          echo "Priority: optional" >> deb-pkg/DEBIAN/control
+          echo "Architecture: amd64" >> deb-pkg/DEBIAN/control
+          echo "Maintainer: QtSerialAssist" >> deb-pkg/DEBIAN/control
+          echo "Description: 跨平台串口/网络调试助手" >> deb-pkg/DEBIAN/control
           echo "=== control ===" && cat deb-pkg/DEBIAN/control
           echo "=== deb-pkg tree ===" && find deb-pkg -type f | sort
           dpkg-deb --version
