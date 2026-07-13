@@ -164,14 +164,18 @@ jobs:
           cp AppDir/usr/share/icons/hicolor/256x256/apps/qtserialassist.png \
              deb-pkg/usr/share/icons/hicolor/256x256/apps/
 
-          printf 'Package: qtserialassist\n' > deb-pkg/DEBIAN/control
-          printf 'Version: %s\n' "${VERSION}" >> deb-pkg/DEBIAN/control
-          printf 'Section: utils\n' >> deb-pkg/DEBIAN/control
-          printf 'Priority: optional\n' >> deb-pkg/DEBIAN/control
-          printf 'Architecture: amd64\n' >> deb-pkg/DEBIAN/control
-          printf 'Maintainer: QtSerialAssist\n' >> deb-pkg/DEBIAN/control
-          printf 'Description: 跨平台串口/网络调试助手\n' >> deb-pkg/DEBIAN/control
-          dpkg-deb --build deb-pkg "QtSerialAssist-${VERSION}-linux-amd64.deb"
+          cat > deb-pkg/DEBIAN/control << 'EOF'
+Package: qtserialassist
+Version: FIXME
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: QtSerialAssist
+Description: 跨平台串口/网络调试助手
+EOF
+          sed -i "s/FIXME/${VERSION}/" deb-pkg/DEBIAN/control
+          echo "=== control ===" && cat deb-pkg/DEBIAN/control
+          dpkg-deb --root-owner-group -b deb-pkg "QtSerialAssist-${VERSION}-linux-amd64.deb"
 
           # ---- rpm (alien convert) ----
           alien -r --scripts "QtSerialAssist-${VERSION}-linux-amd64.deb"
